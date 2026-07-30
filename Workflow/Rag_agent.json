@@ -1,0 +1,656 @@
+{
+  "name": "Rag",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -192
+      ],
+      "id": "65bf7f17-361e-477c-83c0-ba8f26c7d1ae",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "15UAsfdjJlheANEab4cH3qkp8Awg1RJBy",
+          "mode": "list",
+          "cachedResultName": "Company_Flexible_Work_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/15UAsfdjJlheANEab4cH3qkp8Awg1RJBy/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        208,
+        -144
+      ],
+      "id": "d88869d8-0540-4306-a5b7-cd4eb5d1b3f1",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NHPdve8IbWyXnKkg",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        -144
+      ],
+      "id": "1e043c62-b4e5-4b3a-a7ba-c7021af77a9a",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "NsptsbDxzMaJFoti",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        32
+      ],
+      "id": "b3a60599-3294-4077-ae23-f5bfa200fa10",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        416,
+        32
+      ],
+      "id": "518656c2-df29-4364-8ed0-23f4e5078008",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an HR AI Assistant.\n\nYour task is to analyze employee emails related ONLY to Flexible Work requests.\n\nFlexible Work includes:\n- Remote work\n- Hybrid work\n- Working from home\n- Flexible working hours\n\nYou have access to:\n- Company Policy (Vector Store)\n- Employee Database\n\nInstructions:\n\n1. Read the employee email.\n2. Determine whether the email is requesting Flexible Work.\n3. Write a concise summary (1–3 sentences) describing the request.\n4. Extract:\n   - requested date(s), if mentioned\n   - reason for the request, if mentioned\n5. Search the Company Policy using the Vector Store.\n6. Summarize the relevant policy in 1–2 sentences.\n7. Retrieve employee information from the Employee Database if available.\n8. Compare the request against the policy.\n9. Return one of:\n   - Recommend Approval\n   - Recommend Rejection\n   - Manual Review Required\n10. Provide a short explanation for the recommendation.\n11. Estimate a confidence score between 0.0 and 1.0.\n12. If a value cannot be determined after checking the email and tools, return null.\n13. Return ONLY valid JSON.\n14. Do not use Markdown.\n15. Do not explain your reasoning.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        256,
+        -512
+      ],
+      "id": "c7833df5-6984-4203-af17-a6ebf3656c83",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -336
+      ],
+      "id": "7d027ed4-4b0b-4492-946f-c09d137f0c7e",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "call this tool to look up the roles of Company Flexible Work Policy ",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -368
+      ],
+      "id": "ed62ac1b-9222-4e66-8d39-e79e150a48e8",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "NsptsbDxzMaJFoti",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.threadId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        -320
+      ],
+      "id": "f61ef269-c7fa-4565-ba0d-911a921c8fef",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "employees",
+          "mode": "list",
+          "cachedResultName": "employees"
+        },
+        "limit": 100,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        416,
+        -304
+      ],
+      "id": "0c192b61-b9e0-4de3-af2b-ed3a1c8fc2a5",
+      "name": "Select rows from a table in Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "ojTE4CXFiO0rTPYP",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        -544
+      ],
+      "id": "f5c1c601-2131-4dca-893d-0864e25a74db",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9aTxVIbzh10XUZq5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -160,
+        496
+      ],
+      "id": "13140d41-e7af-4a32-877c-111726ed1c23",
+      "name": "When chat message received",
+      "webhookId": "bb59a526-4344-4870-ae7f-e87026d405f5"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "15UAsfdjJlheANEab4cH3qkp8Awg1RJBy",
+          "mode": "list",
+          "cachedResultName": "Company_Flexible_Work_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/15UAsfdjJlheANEab4cH3qkp8Awg1RJBy/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        144,
+        896
+      ],
+      "id": "bc3f81e0-a961-4c84-8cbe-d119812484f0",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NHPdve8IbWyXnKkg",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        896
+      ],
+      "id": "ae4245e9-222e-4aed-bb65-9bc08d9c5494",
+      "name": "Supabase Vector Store2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "NsptsbDxzMaJFoti",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        1072
+      ],
+      "id": "487f32bb-1049-4c57-a02e-a093c85f3975",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        352,
+        1072
+      ],
+      "id": "b901a58a-06e5-44b2-a269-386ea8211aae",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are HRHub, an AI-powered HR Knowledge Assistant.\n\nYour purpose is to assist Human Resources staff by answering HR-related questions using the available knowledge sources.\n\nYou have access to:\n\n1. Employee Database\nContains employee information such as:\n- Employee ID\n- First Name\n- Last Name\n- Email\n- Department\n- Job Title\n- Manager\n- Employment Start Date\n- Probation Completed\n- Salary\n- Annual Leave Balance\n- Performance Rating\n- Location\n\n2. Company Policy Knowledge Base\nContains the official HR policies, including:\n- Leave Policy\n- Salary Policy\n- Flexible Work Policy\n\nYour responsibilities are:\n\n- Answer HR questions accurately and professionally.\n- Use the Employee Database whenever the question is about a specific employee.\n- Use the Company Policy whenever the question is about company rules, procedures, or policies.\n- If a question requires information from both sources, combine the retrieved information into one clear answer.\n- Answer only using information available from the provided tools.\n- If the information cannot be found, clearly state that it is unavailable.\n- Do not make assumptions or invent facts.\n\nGuidelines:\n\n- Be concise, professional, and easy to understand.\n- Do not expose database queries, vector search results, or internal system details.\n- If more than one employee matches the request, ask the HR user to specify which employee.\n- If the question is unrelated to Human Resources, politely explain that you can only assist with HR-related topics.\n\nExamples of questions you can answer:\n\nEmployee Information\n- Who is Sana Layouni's manager?\n- What department does Sirine Layouni work in?\n- What is Sana Layouni's annual leave balance?\n- When did Sirine Layouni join the company?\n- What is Sana Layouni's job title?\n\nCompany Policies\n- How many annual leave days are employees entitled to?\n- What is the company's flexible work policy?\n- Who is eligible for a salary review?\n- What are the rules for annual leave?\n- Can employees work remotely?\n\nCombined Questions\n- Is Sana Layouni eligible to request flexible work according to company policy?\n- Based on the company policy, can Sirine Layouni request a salary review?\n- Does Sana Layouni meet the requirements for annual leave?\n\nAlways provide clear, factual, and evidence-based answers using the available information.\n\nDo not approve, reject, recommend, or make HR decisions. Your role is to provide information and explain company policies, not to make decisions on behalf of HR.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        528
+      ],
+      "id": "4977ac34-38f9-4395-a522-fe33246ab7c0",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        64,
+        704
+      ],
+      "id": "b4365178-3090-4b65-bbc8-4e81dcb829f9",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "call this tool to look up the roles of Company Flexible Work Policy ",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        752
+      ],
+      "id": "e67f3685-e3cd-4b17-9c8d-453c97ad2fb7",
+      "name": "Supabase Vector Store3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "NsptsbDxzMaJFoti",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        720
+      ],
+      "id": "fafc8119-844c-43d6-b928-95105cb40a20",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "employees",
+          "mode": "list",
+          "cachedResultName": "employees"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        352,
+        736
+      ],
+      "id": "235c741a-557e-43e4-bfd0-66efc0ec04a7",
+      "name": "Select rows from a table in Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "ojTE4CXFiO0rTPYP",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table in Postgres": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store3",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store3": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table in Postgres1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a784b003-e630-49a0-9875-9b8544e22973",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5435525da143afaade370e429806aee99c1cfc4210ff945146e249a4943fe18d"
+  },
+  "id": "KjJhwlYbK0acvPRf",
+  "tags": []
+}
