@@ -1,0 +1,33 @@
+# Environment variables
+.env
+.env.*
+
+# Credentials / secrets
+credentials.json
+service-account.json
+*.pem
+*.key
+*.secret
+
+# Local databases / data
+*.db
+*.sqlite
+*.sqlite3
+
+# n8n local data
+.n8n/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Sensitive company data
+employee_data/
+real_emails/
+private_policies/
