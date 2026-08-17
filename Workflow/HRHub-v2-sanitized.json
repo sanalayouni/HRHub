@@ -1,0 +1,1275 @@
+{
+  "name": "Rag",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        -640
+      ],
+      "id": "8862d386-af7d-4448-bb40-f09e4398b5a7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAILOAUTH2_CREDENTIAL_ID",
+          "name": "YOUR_GMAILOAUTH2_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        1136,
+        384
+      ],
+      "id": "9028630c-5a71-4139-b363-0b488d90ad1d",
+      "name": "When chat message received",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "mode": "list",
+          "cachedResultName": "Company_Flexible_Work_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/YOUR_GOOGLE_DRIVE_FILE_ID/view"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        848
+      ],
+      "id": "09829dfd-4e0a-454b-a70d-ebf49803dd25",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLEDRIVEOAUTH2API_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLEDRIVEOAUTH2API_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "flexwork_documents",
+          "mode": "list",
+          "cachedResultName": "flexwork_documents"
+        },
+        "options": {
+          "queryName": "match_flexwork_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1456,
+        864
+      ],
+      "id": "0ade5f4c-e8b2-4b4b-8476-9cb7b937130c",
+      "name": "Supabase Vector Store2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "YOUR_SUPABASEAPI_CREDENTIAL_ID",
+          "name": "YOUR_SUPABASEAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        1136
+      ],
+      "id": "eae1f324-5cac-468b-aa48-56a68484567e",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        1136
+      ],
+      "id": "d7a55fbe-2c5e-48a8-b770-b245e2a55fd7",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1824,
+        256
+      ],
+      "id": "1da01f09-1562-4b14-9026-e76cbd430be3",
+      "name": "flexible work agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "call this tool to look up rules from the Company Flexible Work Policy",
+        "tableName": {
+          "__rl": true,
+          "value": "flexwork_documents",
+          "mode": "list",
+          "cachedResultName": "flexwork_documents"
+        },
+        "options": {
+          "queryName": "match_flexwork_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        768
+      ],
+      "id": "07de1dca-493c-47b1-ba6e-752bedf6a47a",
+      "name": "Supabase Vector Store3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "YOUR_SUPABASEAPI_CREDENTIAL_ID",
+          "name": "YOUR_SUPABASEAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this to look up a specific employee's data — role, department, tenure, manager, remote-work eligibility — by name or email. Do NOT use this for questions about the flexible work policy rules themselves.",
+        "operation": "executeQuery",
+        "query": "select * FROM employees\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2096,
+        688
+      ],
+      "id": "223edb0c-7b23-4867-b470-8ba569cb174f",
+      "name": "EmployeeDatabase",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "YOUR_POSTGRES_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        688
+      ],
+      "id": "ce36d9ca-6291-4571-8a81-bba259c82c15",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1136,
+        560
+      ],
+      "id": "c10dbbaf-2729-4c76-8f67-38c75efe6826",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        528
+      ],
+      "id": "fcd07caf-aac2-41e2-8757-4461276ba727",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1104,
+        336
+      ],
+      "id": "76b413fb-af18-4353-a202-f6db3ecb11ea",
+      "name": "leave request agent"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "mode": "list",
+          "cachedResultName": "Company_Salary_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/YOUR_GOOGLE_DRIVE_FILE_ID/view"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        272,
+        800
+      ],
+      "id": "510e8818-50bc-40b1-9fd8-23cd245b74fc",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLEDRIVEOAUTH2API_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLEDRIVEOAUTH2API_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "salary_documents",
+          "mode": "list"
+        },
+        "options": {
+          "queryName": "match_salary_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        704
+      ],
+      "id": "7621f428-0aa2-4aff-b113-3b2d44d8533d",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "YOUR_SUPABASEAPI_CREDENTIAL_ID",
+          "name": "YOUR_SUPABASEAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        352,
+        976
+      ],
+      "id": "841d1ef0-c2a6-4c5a-8311-32258cdd7028",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        976
+      ],
+      "id": "fd604d5d-a64d-4e0f-be35-0166c30f72f4",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "call this tool to look up rules from the Company Salary Policy",
+        "tableName": {
+          "__rl": true,
+          "value": "salary_documents",
+          "mode": "list",
+          "cachedResultName": "salary_documents"
+        },
+        "options": {
+          "queryName": "match_salary_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        576
+      ],
+      "id": "9dcf0aa8-38ae-4a4c-a3f6-d05b61b070fe",
+      "name": "Supabase Vector Store4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "YOUR_SUPABASEAPI_CREDENTIAL_ID",
+          "name": "YOUR_SUPABASEAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        432
+      ],
+      "id": "9512da46-bdf9-4d0a-b544-6ffc440c0d08",
+      "name": "salary request agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        656
+      ],
+      "id": "50801557-5579-48db-b09d-b3accc4bf951",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        656
+      ],
+      "id": "36ef6ab1-6274-4717-9b9e-6405136eee87",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this to look up a specific employee's data — role, salary band, tenure, department, manager — by name or email. Do NOT use this for questions about the salary policy rules themselves.",
+        "operation": "executeQuery",
+        "query": "select * FROM employees\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        336,
+        624
+      ],
+      "id": "d5764b4a-8cda-4ddd-872b-add3dc24a08e",
+      "name": "EmployeeDatabase2",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "YOUR_POSTGRES_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "mode": "list",
+          "cachedResultName": "Company_Vacation_Leave_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/YOUR_GOOGLE_DRIVE_FILE_ID/view"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1392,
+        720
+      ],
+      "id": "5008b7bc-7e22-41c8-8ad4-2a32d42a1e0a",
+      "name": "Download file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLEDRIVEOAUTH2API_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLEDRIVEOAUTH2API_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        928
+      ],
+      "id": "242cd0fb-6e3f-48ce-92eb-046670132035",
+      "name": "Embeddings Ollama2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -976,
+        944
+      ],
+      "id": "49041300-3d85-4d1b-9769-b5fd7050bb09",
+      "name": "Default Data Loader2"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "leave_documents",
+          "mode": "list",
+          "cachedResultName": "leave_documents"
+        },
+        "options": {
+          "queryName": "match_leave_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -1088,
+        720
+      ],
+      "id": "bed523ac-f8ff-4654-a533-f1624fe05ddf",
+      "name": "Supabase Vector Store5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "YOUR_SUPABASEAPI_CREDENTIAL_ID",
+          "name": "YOUR_SUPABASEAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this to look up a specific employee's data — leave balance, manager, department, start date, probation status — by name or email. Do NOT use this for questions about the vacation policy rules themselves.",
+        "operation": "executeQuery",
+        "query": "select * FROM employees\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -992,
+        560
+      ],
+      "id": "ce38281f-c9d5-4df2-8d24-3161991263dc",
+      "name": "query_employee_database",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "YOUR_POSTGRES_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Call this tool to search the Company Vacation Leave Policy. Input must be a plain natural-language question (e.g. \"how many days notice is required for annual leave\"). Do NOT write SQL — this is a semantic text search, not a database table.",
+        "tableName": {
+          "__rl": true,
+          "value": "leave_documents",
+          "mode": "list",
+          "cachedResultName": "leave_documents"
+        },
+        "options": {
+          "queryName": "match_leave_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -736,
+        656
+      ],
+      "id": "d482725f-a728-4338-9594-c3513115dde2",
+      "name": "the company vacation leave policy",
+      "credentials": {
+        "supabaseApi": {
+          "id": "YOUR_SUPABASEAPI_CREDENTIAL_ID",
+          "name": "YOUR_SUPABASEAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111111",
+              "name": "chatInput",
+              "type": "string",
+              "value": "={{ 'From: ' +$json.From  + '\\nSubject: ' + $json.Subject + '\\n\\n' + ($json.text || $json.snippet || '') }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111112",
+              "name": "email_from",
+              "type": "string",
+              "value": "={{ $json.From }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111113",
+              "name": "email_subject",
+              "type": "string",
+              "value": "={{ $json.Subject }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111114",
+              "name": "gmail_message_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111115",
+              "name": "gmail_thread_id",
+              "type": "string",
+              "value": "={{ $json.threadId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        -640
+      ],
+      "id": "128c9c32-195f-457f-bcd9-bf013a11b2d2",
+      "name": "Normalize Email"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -368
+      ],
+      "id": "069cd9e9-a25a-4ba3-8d10-89b0d159fe42",
+      "name": "Supervisor Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "YOUR_OLLAMAAPI_CREDENTIAL_ID",
+          "name": "YOUR_OLLAMAAPI_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize the following email in 2-3 plain sentences, focused only on what the sender is asking for (the type of HR request, and key details like dates, amounts, or duration). Ignore greetings and signatures.\n\nEmail:\n{{ $json.chatInput }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -96,
+        -640
+      ],
+      "id": "0d95221d-3ce5-474c-b30d-4289a4c14b54",
+      "name": "Summarize Email"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the HR inbox supervisor. Classify the email summary below into exactly one category: leave, salary, flexwork, or not_hr.\n\nCategories:\n- leave: vacation, PTO, sick leave, time off, leave balance questions\n- salary: pay, compensation, raises, salary review, bonuses, expense reimbursement\n- flexwork: remote work, hybrid schedule, flexible hours, work-from-home\n- not_hr: anything that is not an HR request\n\nEmail summary:\n{{ $json.text }}\n\nRespond with ONLY the single category word (leave, salary, flexwork, or not_hr). No punctuation, no explanation, nothing else.\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        128,
+        -640
+      ],
+      "id": "d6f5d5a6-ff74-460f-b38b-e66018c36c1b",
+      "name": "Supervisor Classify",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 500
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        624,
+        -720
+      ],
+      "id": "a939f988-067d-4f9e-aebd-e0bc5204109f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1a1a111-1111-4111-8111-111111111121",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "leave",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "leave"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1a1a111-1111-4111-8111-111111111122",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "salary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "salary"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1a1a111-1111-4111-8111-111111111123",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "flexwork",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "flexwork"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1056,
+        -688
+      ],
+      "id": "19ba07f4-8c3c-41fc-bbd1-5c9e1a186128",
+      "name": "Supervisor Router"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -816
+      ],
+      "id": "788ee354-4813-4f41-a3ad-b3dfc250a210",
+      "name": "Not an HR request - Ignore"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"recommendation\": { \"type\": \"string\", \"enum\": [\"Approve\", \"Reject\", \"Request Additional Information\"] },\n    \"confidence\": { \"type\": \"number\", \"minimum\": 0, \"maximum\": 1 },\n    \"reasoning\": { \"type\": \"string\" }\n  },\n  \"required\": [\"recommendation\", \"confidence\", \"reasoning\"]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        1776
+      ],
+      "id": "a63493a9-a9e8-46cb-83ae-d3354ffb5efe",
+      "name": "Decision Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO decisions (request_type, employee_email, request_text, recommendation, confidence, reasoning, status, gmail_message_id, gmail_thread_id) VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, $8)",
+        "options": {
+          "queryReplacement": "={{ [ $('Merge').item.json.output.category, $('Merge').item.json.email_from, $('Merge').item.json.chatInput, $json.output.recommendation, $json.output.confidence, $json.output.reasoning, $('Merge').item.json.gmail_message_id, $('Merge').item.json.gmail_thread_id ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3104,
+        752
+      ],
+      "id": "459135c0-d2c4-40bb-991d-60eb70a6f78f",
+      "name": "Insert Decision",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "YOUR_POSTGRES_CREDENTIAL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = ($input.first().json.text || '').toLowerCase().trim();\nlet category = 'not_hr';\nif (raw.includes('leave')) category = 'leave';\nelse if (raw.includes('salary')) category = 'salary';\nelse if (raw.includes('flex')) category = 'flexwork';\n\nreturn [{\n  json: {\n    category,\n    is_hr_request: category !== 'not_hr',\n    raw_classification: raw\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        -400
+      ],
+      "id": "b7c2a441-1a3f-4c9e-9f0a-2f6e2a1d5c30",
+      "name": "Parse Category"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "5"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        656
+      ],
+      "id": "69897d8f-7b32-4c44-92b0-e9e5fae7ccf0",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Summarize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Email": {
+      "main": [
+        [
+          {
+            "node": "Supervisor Classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Email",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Supervisor Classify",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Classify": {
+      "main": [
+        [
+          {
+            "node": "Parse Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Supervisor Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Router": {
+      "main": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "salary request agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "flexible work agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not an HR request - Ignore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Output Parser": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "leave request agent": {
+      "main": [
+        []
+      ]
+    },
+    "salary request agent": {
+      "main": [
+        []
+      ]
+    },
+    "flexible work agent": {
+      "main": [
+        []
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store3",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store3": {
+      "ai_tool": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EmployeeDatabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store4",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store4": {
+      "ai_tool": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EmployeeDatabase2": {
+      "ai_tool": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file2": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "the company vacation leave policy",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader2": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "query_employee_database": {
+      "ai_tool": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "the company vacation leave policy": {
+      "ai_tool": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Category": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "YOUR_WORKFLOW_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
