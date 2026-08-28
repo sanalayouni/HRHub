@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../core/api_client.dart';
 import '../../providers/requests_provider.dart';
+import '../../theme/app_palette.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/labels.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/page_header.dart';
 import 'widgets/ai_recommendation_card.dart';
 import 'widgets/decision_action_bar.dart';
 import 'widgets/employee_context_card.dart';
@@ -15,14 +19,20 @@ class RequestDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final requestAsync = ref.watch(requestDetailProvider(requestId));
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         leading: const BackButton(),
-        title: const Text('Request'),
+        title: Text('Request', style: heading(size: 17, color: palette.ink)),
       ),
       body: requestAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => ListMessage(
+          apiErrorMessage(e, fallback: "Couldn't load this request."),
+        ),
         data: (request) {
           final status = request.decision?.status ?? 'pending';
           final isActionable = status == 'pending' || status == 'needs_review';
@@ -44,27 +54,33 @@ class RequestDetailScreen extends ConsumerWidget {
                       AiRecommendationCard(decision: request.decision),
                       if (!isActionable) ...[
                         const SizedBox(height: 12),
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'FINAL DECISION',
-                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.inkSoft, letterSpacing: 0.5),
+                        GlassCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'FINAL DECISION',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.inkSoft,
+                                  letterSpacing: 0.5,
                                 ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'This request was ${statusLabels[status]?.toLowerCase() ?? status}'
+                                '${request.decision != null ? ' on ${formatDate(request.decision!.updatedAt)}' : ''}.',
+                                style: TextStyle(fontSize: 13, color: palette.ink),
+                              ),
+                              if (request.decision?.notes != null) ...[
                                 const SizedBox(height: 6),
                                 Text(
-                                  'This request was $status on '
-                                  '${request.decision != null ? DateFormat.yMd().format(DateTime.parse(request.decision!.updatedAt)) : ''}.',
+                                  '"${request.decision!.notes}"',
+                                  style: TextStyle(fontSize: 13, color: palette.inkSoft),
                                 ),
-                                if (request.decision?.notes != null) ...[
-                                  const SizedBox(height: 6),
-                                  Text('"${request.decision!.notes}"', style: const TextStyle(color: AppColors.inkSoft)),
-                                ],
                               ],
-                            ),
+                            ],
                           ),
                         ),
                       ],
@@ -73,12 +89,13 @@ class RequestDetailScreen extends ConsumerWidget {
                 ),
               ),
               if (isActionable)
-                DecisionActionBar(requestId: request.id, existingNotes: request.decision?.notes),
+                DecisionActionBar(
+                  requestId: request.id,
+                  existingNotes: request.decision?.notes,
+                ),
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text("Couldn't load this request: $e")),
       ),
     );
   }

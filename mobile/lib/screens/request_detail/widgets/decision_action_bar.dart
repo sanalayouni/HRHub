@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/requests_provider.dart';
-import '../../../theme/app_theme.dart';
+import '../../../core/api_client.dart';
+import '../../../theme/app_palette.dart';
 
 class DecisionActionBar extends ConsumerStatefulWidget {
   final String requestId;
@@ -43,7 +44,10 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
             notes.isEmpty ? null : notes,
           );
     } catch (e) {
-      setState(() => _error = "Couldn't save your decision. Try again.");
+      setState(() => _error = apiErrorMessage(
+            e,
+            fallback: "Couldn't save your decision. Try again.",
+          ));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -51,11 +55,13 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       padding: EdgeInsets.fromLTRB(16, 14, 16, 14 + MediaQuery.of(context).padding.bottom),
-      decoration: const BoxDecoration(
-        color: AppColors.ink,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: palette.ink,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -69,7 +75,7 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
           TextField(
             controller: _notesController,
             maxLines: 2,
-            style: const TextStyle(color: AppColors.cream, fontSize: 13),
+            style: TextStyle(color: palette.cream, fontSize: 13),
             decoration: InputDecoration(
               hintText: 'Add an optional note...',
               hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
@@ -89,7 +95,7 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
                 child: _ActionButton(
                   label: 'Approve',
                   icon: Icons.check,
-                  color: AppColors.sage,
+                  color: palette.sage,
                   onTap: _submitting ? null : () => _decide('approved'),
                 ),
               ),
@@ -98,7 +104,7 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
                 child: _ActionButton(
                   label: 'Reject',
                   icon: Icons.close,
-                  color: AppColors.coral,
+                  color: palette.coral,
                   onTap: _submitting ? null : () => _decide('rejected'),
                 ),
               ),
@@ -107,7 +113,7 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
                 child: _ActionButton(
                   label: 'Info',
                   icon: Icons.help_outline,
-                  color: AppColors.dustyBlue,
+                  color: palette.dustyBlue,
                   onTap: _submitting ? null : () => _decide('needs_review'),
                 ),
               ),
@@ -115,7 +121,7 @@ class _DecisionActionBarState extends ConsumerState<DecisionActionBar> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 6),
-            Text(_error!, style: const TextStyle(color: AppColors.coral, fontSize: 11)),
+            Text(_error!, style: TextStyle(color: palette.coral, fontSize: 11)),
           ],
         ],
       ),
@@ -135,8 +141,15 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 16, color: AppColors.ink),
-      label: Text(label, style: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w700, fontSize: 13)),
+      icon: Icon(icon, size: 16, color: context.palette.inkFixed),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: context.palette.inkFixed,
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+        ),
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(vertical: 12),

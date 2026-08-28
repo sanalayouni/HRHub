@@ -1,70 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'app_palette.dart';
 
-class AppColors {
-  static const cream = Color(0xFFF7F3EA);
-  static const creamSoft = Color(0xFFEEE8D8);
-  static const ink = Color(0xFF1A1A1A);
-  static const inkSoft = Color(0xFF4A473F);
-  static const accent = Color(0xFFF5C842);
-  static const sage = Color(0xFF8FA88A);
-  static const sageSoft = Color(0xFFE7EDE5);
-  static const coral = Color(0xFFD98C7B);
-  static const coralSoft = Color(0xFFF6E6E2);
-  static const dustyBlue = Color(0xFF7B96AD);
-  static const dustyBlueSoft = Color(0xFFE6ECF1);
+/// Plus Jakarta Sans for headings, Inter for body — same pairing as the web.
+TextStyle heading({
+  required double size,
+  FontWeight weight = FontWeight.w700,
+  Color? color,
+  double? height,
+  double letterSpacing = -0.4,
+}) {
+  return GoogleFonts.plusJakartaSans(
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+    height: height,
+    letterSpacing: letterSpacing,
+  );
 }
 
-ThemeData buildAppTheme() {
-  final headingFont = GoogleFonts.plusJakartaSansTextTheme();
-  final bodyFont = GoogleFonts.interTextTheme();
+ThemeData buildAppTheme(Brightness brightness) {
+  final isDark = brightness == Brightness.dark;
+  final palette = isDark ? AppPalette.dark : AppPalette.light;
+
+  final base = GoogleFonts.interTextTheme(
+    isDark ? ThemeData.dark().textTheme : ThemeData.light().textTheme,
+  ).apply(bodyColor: palette.ink, displayColor: palette.ink);
 
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: AppColors.cream,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.accent,
-      primary: AppColors.ink,
-      secondary: AppColors.accent,
-      surface: Colors.white,
+    brightness: brightness,
+    extensions: [palette],
+    // The gradient backdrop paints behind every screen, so scaffolds
+    // themselves stay transparent.
+    scaffoldBackgroundColor: Colors.transparent,
+    canvasColor: palette.surface,
+    colorScheme: ColorScheme(
+      brightness: brightness,
+      primary: palette.ink,
+      onPrimary: palette.cream,
+      secondary: palette.accent,
+      onSecondary: palette.inkFixed,
+      error: palette.coral,
+      onError: palette.inkFixed,
+      surface: palette.surface,
+      onSurface: palette.ink,
     ),
-    textTheme: bodyFont.copyWith(
-      headlineLarge: headingFont.headlineLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-        color: AppColors.ink,
-      ),
-      headlineMedium: headingFont.headlineMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-        color: AppColors.ink,
-      ),
-      titleLarge: headingFont.titleLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-        color: AppColors.ink,
-      ),
-      titleMedium: headingFont.titleMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: AppColors.ink,
-      ),
+    textTheme: base.copyWith(
+      headlineLarge: heading(size: 34, color: palette.ink),
+      headlineMedium: heading(size: 28, color: palette.ink),
+      titleLarge: heading(size: 20, color: palette.ink),
+      titleMedium: heading(size: 15, weight: FontWeight.w600, color: palette.ink),
+      titleSmall: heading(size: 13, weight: FontWeight.w600, color: palette.ink),
     ),
-    cardTheme: const CardThemeData(
-      color: Colors.white,
+    cardTheme: CardThemeData(
+      color: palette.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(24)),
       ),
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.cream,
-      foregroundColor: AppColors.ink,
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      foregroundColor: palette.ink,
       elevation: 0,
+      scrolledUnderElevation: 0,
       centerTitle: false,
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: AppColors.ink,
-      selectedItemColor: AppColors.accent,
-      unselectedItemColor: Colors.white70,
-      type: BottomNavigationBarType.fixed,
+    dividerTheme: DividerThemeData(color: palette.creamSoft, thickness: 1, space: 1),
+    iconTheme: IconThemeData(color: palette.inkSoft),
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: palette.accent),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: palette.surface,
+      hintStyle: TextStyle(color: palette.inkSoft.withValues(alpha: 0.6), fontSize: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(999),
+        borderSide: BorderSide(color: palette.creamSoft),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(999),
+        borderSide: BorderSide(color: palette.creamSoft),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(999),
+        borderSide: BorderSide(color: palette.accent, width: 2),
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: palette.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: palette.ink,
+      contentTextStyle: TextStyle(color: palette.cream),
+      behavior: SnackBarBehavior.floating,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
     ),
   );
 }

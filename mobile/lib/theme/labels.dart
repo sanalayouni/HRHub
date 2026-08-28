@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_theme.dart';
+import 'app_palette.dart';
 
 const Map<String, String> categoryLabels = {
   'leave': 'Leave',
@@ -7,29 +7,29 @@ const Map<String, String> categoryLabels = {
   'flexwork': 'Flexible Work',
 };
 
-Color categoryColor(String category) {
+Color categoryColor(AppPalette p, String category) {
   switch (category) {
     case 'leave':
-      return AppColors.dustyBlue;
+      return p.dustyBlue;
     case 'salary':
-      return AppColors.accent;
+      return p.accent;
     case 'flexwork':
-      return AppColors.sage;
+      return p.sage;
     default:
-      return AppColors.inkSoft;
+      return p.inkSoft;
   }
 }
 
-Color categoryBg(String category) {
+Color categoryBg(AppPalette p, String category) {
   switch (category) {
     case 'leave':
-      return AppColors.dustyBlueSoft;
+      return p.dustyBlueSoft;
     case 'salary':
-      return AppColors.accent.withValues(alpha: 0.2);
+      return p.accent.withValues(alpha: 0.2);
     case 'flexwork':
-      return AppColors.sageSoft;
+      return p.sageSoft;
     default:
-      return AppColors.creamSoft;
+      return p.creamSoft;
   }
 }
 
@@ -40,25 +40,25 @@ const Map<String, String> statusLabels = {
   'rejected': 'Rejected',
 };
 
-Color statusColor(String status) {
+Color statusColor(AppPalette p, String status) {
   switch (status) {
     case 'approved':
-      return AppColors.sage;
+      return p.sage;
     case 'rejected':
-      return AppColors.coral;
+      return p.coral;
     default:
-      return AppColors.dustyBlue;
+      return p.dustyBlue;
   }
 }
 
-Color statusBg(String status) {
+Color statusBg(AppPalette p, String status) {
   switch (status) {
     case 'approved':
-      return AppColors.sageSoft;
+      return p.sageSoft;
     case 'rejected':
-      return AppColors.coralSoft;
+      return p.coralSoft;
     default:
-      return AppColors.dustyBlueSoft;
+      return p.dustyBlueSoft;
   }
 }
 
@@ -69,21 +69,21 @@ class AiRecommendation {
   AiRecommendation(this.label, this.color, this.bg);
 }
 
-AiRecommendation normalizeAiRecommendation(String? raw) {
+AiRecommendation normalizeAiRecommendation(AppPalette p, String? raw) {
   if (raw == null) {
-    return AiRecommendation('—', AppColors.inkSoft, AppColors.creamSoft);
+    return AiRecommendation('—', p.inkSoft, p.creamSoft);
   }
   final v = raw.toLowerCase();
   if (v.contains('approve')) {
-    return AiRecommendation('Approve', AppColors.sage, AppColors.sageSoft);
+    return AiRecommendation('Approve', p.sage, p.sageSoft);
   }
   if (v.contains('reject')) {
-    return AiRecommendation('Reject', AppColors.coral, AppColors.coralSoft);
+    return AiRecommendation('Reject', p.coral, p.coralSoft);
   }
   if (v.contains('info')) {
-    return AiRecommendation('Request Info', AppColors.dustyBlue, AppColors.dustyBlueSoft);
+    return AiRecommendation('Request Info', p.dustyBlue, p.dustyBlueSoft);
   }
-  return AiRecommendation(raw, AppColors.inkSoft, AppColors.creamSoft);
+  return AiRecommendation(raw, p.inkSoft, p.creamSoft);
 }
 
 String formatConfidence(double? confidence) {
@@ -105,4 +105,14 @@ String formatDate(String iso) {
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
   return '${months[date.month - 1]} ${date.day}, ${date.year}';
+}
+
+String formatSalary(double salary) {
+  final whole = salary.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < whole.length; i++) {
+    if (i > 0 && (whole.length - i) % 3 == 0) buffer.write(',');
+    buffer.write(whole[i]);
+  }
+  return '\$$buffer';
 }

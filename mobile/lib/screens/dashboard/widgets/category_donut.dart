@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../models/dashboard_summary_model.dart';
+import '../../../theme/app_palette.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/glass_card.dart';
 
 class CategoryDonut extends StatelessWidget {
   final CategorySplit split;
@@ -9,20 +11,19 @@ class CategoryDonut extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final total = split.leave + split.salary + split.flexwork;
     final entries = [
-      ('Leave', split.leave, AppColors.dustyBlue),
-      ('Salary', split.salary, AppColors.accent),
-      ('Flexible Work', split.flexwork, AppColors.sage),
+      ('Leave', split.leave, palette.dustyBlue),
+      ('Salary', split.salary, palette.accent),
+      ('Flexible Work', split.flexwork, palette.sage),
     ];
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return GlassCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Requests by Category', style: Theme.of(context).textTheme.titleMedium),
+            Text('Requests by Category', style: heading(size: 15, color: palette.ink)),
             const SizedBox(height: 12),
             SizedBox(
               height: 150,
@@ -47,8 +48,9 @@ class CategoryDonut extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('$total', style: Theme.of(context).textTheme.titleLarge),
-                      const Text('total requests', style: TextStyle(fontSize: 10, color: AppColors.inkSoft)),
+                      Text('$total', style: heading(size: 22, color: palette.ink)),
+                      Text('total requests',
+                          style: TextStyle(fontSize: 10, color: palette.inkSoft)),
                     ],
                   ),
                 ],
@@ -68,14 +70,18 @@ class CategoryDonut extends StatelessWidget {
                             decoration: BoxDecoration(color: e.$3, shape: BoxShape.circle),
                           ),
                           const SizedBox(width: 4),
-                          Text('${e.$1} ', style: const TextStyle(fontSize: 11, color: AppColors.inkSoft)),
-                          Text('${e.$2}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                          Text('${e.$1} ',
+                              style: TextStyle(fontSize: 11, color: palette.inkSoft)),
+                          Text('${e.$2}',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.ink)),
                         ],
                       ))
                   .toList(),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

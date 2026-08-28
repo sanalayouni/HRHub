@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../models/dashboard_summary_model.dart';
+import '../../../theme/app_palette.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/labels.dart';
 import '../../../widgets/category_badge.dart';
+import '../../../widgets/glass_card.dart';
 import '../../../widgets/status_badge.dart';
 
 class RecentDecisionsFeed extends StatelessWidget {
@@ -12,49 +14,75 @@ class RecentDecisionsFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Recent Decisions', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            if (items.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text('No decisions made yet.', style: TextStyle(color: AppColors.inkSoft)),
+    final palette = context.palette;
+
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Recent Decisions', style: heading(size: 15, color: palette.ink)),
+          const SizedBox(height: 4),
+          if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'No decisions made yet.',
+                  style: TextStyle(fontSize: 13, color: palette.inkSoft),
                 ),
-              )
-            else
-              ...items.map((item) => InkWell(
-                    onTap: () => context.push('/requests/${item.requestId}'),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
+              ),
+            )
+          else
+            for (var i = 0; i < items.length; i++)
+              InkWell(
+                onTap: () => context.push('/requests/${items[i].requestId}'),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: i < items.length - 1
+                            ? palette.creamSoft.withValues(alpha: 0.6)
+                            : Colors.transparent,
+                      ),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          CategoryBadge(category: item.requestType),
-                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              item.employeeName ?? 'Unknown Employee',
+                              items[i].employeeName ?? 'Unknown Employee',
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: palette.ink,
+                              ),
                             ),
                           ),
                           Text(
-                            formatDate(item.updatedAt),
-                            style: const TextStyle(fontSize: 11, color: AppColors.inkSoft),
+                            formatDate(items[i].updatedAt),
+                            style: TextStyle(fontSize: 11, color: palette.inkSoft),
                           ),
-                          const SizedBox(width: 8),
-                          StatusBadge(status: item.status),
                         ],
                       ),
-                    ),
-                  )),
-          ],
-        ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          CategoryBadge(category: items[i].requestType),
+                          StatusBadge(status: items[i].status),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+        ],
       ),
     );
   }

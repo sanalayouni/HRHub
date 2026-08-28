@@ -1,8 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../models/decision_model.dart';
+import '../../../theme/app_palette.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/labels.dart';
+import '../../../widgets/category_badge.dart';
+import '../../../widgets/glass_card.dart';
 
 class AiRecommendationCard extends StatelessWidget {
   final DecisionOut? decision;
@@ -10,21 +13,21 @@ class AiRecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    final palette = context.palette;
+
+    return GlassCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('AI Recommendation', style: Theme.of(context).textTheme.titleMedium),
+            Text('AI Recommendation', style: heading(size: 15, color: palette.ink)),
             const SizedBox(height: 12),
             if (decision == null || decision!.aiRecommendation == null)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Center(
                   child: Text(
                     "This request hasn't been processed by an agent yet.",
-                    style: TextStyle(color: AppColors.inkSoft),
+                    style: TextStyle(fontSize: 13, color: palette.inkSoft),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -46,13 +49,13 @@ class AiRecommendationCard extends StatelessWidget {
                             sections: [
                               PieChartSectionData(
                                 value: (decision!.confidence ?? 0) * 100,
-                                color: AppColors.accent,
+                                color: palette.accent,
                                 radius: 10,
                                 showTitle: false,
                               ),
                               PieChartSectionData(
                                 value: 100 - (decision!.confidence ?? 0) * 100,
-                                color: AppColors.creamSoft,
+                                color: palette.creamSoft,
                                 radius: 10,
                                 showTitle: false,
                               ),
@@ -61,19 +64,19 @@ class AiRecommendationCard extends StatelessWidget {
                         ),
                         Text(
                           formatConfidence(decision!.confidence),
-                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                            color: palette.ink,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 16),
                   Builder(builder: (context) {
-                    final ai = normalizeAiRecommendation(decision!.aiRecommendation);
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(color: ai.bg, borderRadius: BorderRadius.circular(999)),
-                      child: Text(ai.label, style: TextStyle(color: ai.color, fontWeight: FontWeight.w700)),
-                    );
+                    final ai = normalizeAiRecommendation(palette, decision!.aiRecommendation);
+                    return DotBadge(label: ai.label, color: ai.color);
                   }),
                 ],
               ),
@@ -83,25 +86,32 @@ class AiRecommendationCard extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.cream,
+                    color: palette.cream,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'REASONING',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.inkSoft, letterSpacing: 0.5),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: palette.inkSoft,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       const SizedBox(height: 4),
-                      Text(decision!.decisionReason!, style: const TextStyle(fontSize: 13, height: 1.4)),
+                      Text(
+                        decision!.decisionReason!,
+                        style: TextStyle(fontSize: 13, height: 1.4, color: palette.ink),
+                      ),
                     ],
                   ),
                 ),
               ],
             ],
-          ],
-        ),
+        ],
       ),
     );
   }

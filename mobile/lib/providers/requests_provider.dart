@@ -13,6 +13,34 @@ final pendingRequestsProvider = FutureProvider<List<RequestListItem>>((ref) asyn
       .toList();
 });
 
+class RequestFilters {
+  final String? category;
+  final String? status;
+  final String search;
+
+  const RequestFilters({this.category, this.status, this.search = ''});
+
+  RequestFilters copyWith({String? category, String? status, String? search}) {
+    return RequestFilters(
+      category: category ?? this.category,
+      status: status ?? this.status,
+      search: search ?? this.search,
+    );
+  }
+}
+
+final requestFiltersProvider = StateProvider((ref) => const RequestFilters());
+
+/// Every request, open or resolved — the web `Requests` page.
+final requestsListProvider = FutureProvider<List<RequestListItem>>((ref) {
+  final filters = ref.watch(requestFiltersProvider);
+  return ref.watch(requestsRepositoryProvider).fetchRequests(
+        category: filters.category,
+        status: filters.status,
+        search: filters.search,
+      );
+});
+
 final requestDetailProvider =
     FutureProvider.family<RequestDetail, String>((ref, id) {
   return ref.watch(requestsRepositoryProvider).fetchRequest(id);
@@ -26,6 +54,7 @@ class DecisionActions {
     await ref.read(requestsRepositoryProvider).decideRequest(requestId, status, notes);
     ref.invalidate(requestDetailProvider(requestId));
     ref.invalidate(pendingRequestsProvider);
+    ref.invalidate(requestsListProvider);
     ref.invalidate(dashboardSummaryProvider);
     ref.invalidate(decisionsProvider);
   }

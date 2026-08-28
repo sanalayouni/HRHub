@@ -4,6 +4,17 @@ export type RequestCategory = "leave" | "salary" | "flexwork";
 // yet. The DB only ever stores needs_review / approved / rejected.
 export type DecisionStatus = "pending" | "needs_review" | "approved" | "rejected";
 
+// The DB enforces exactly these values via a check constraint on employees.
+export type PerformanceRating = "Excellent" | "Very Good" | "Good" | "Average" | "Poor";
+
+export const PERFORMANCE_RATINGS: PerformanceRating[] = [
+  "Excellent",
+  "Very Good",
+  "Good",
+  "Average",
+  "Poor",
+];
+
 export interface RequestListItem {
   id: string;
   request_type: RequestCategory;
@@ -28,7 +39,7 @@ export interface EmployeeOut {
   probation_completed: boolean | null;
   salary: number;
   annual_leave_balance: number | null;
-  performance_rating: string | null;
+  performance_rating: PerformanceRating | null;
   location: string;
   tenure_years: number;
   created_at: string | null;
@@ -47,7 +58,7 @@ export interface EmployeeCreate {
   location: string;
   probation_completed?: boolean | null;
   annual_leave_balance?: number | null;
-  performance_rating?: string | null;
+  performance_rating?: PerformanceRating | null;
 }
 
 export type EmployeeUpdate = Partial<EmployeeCreate>;

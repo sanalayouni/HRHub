@@ -4,6 +4,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -14,6 +15,23 @@ from app.schemas.request import RequestListItem
 from app.services.lookups import employee_to_out, latest_decision, request_to_list_item
 
 router = APIRouter(prefix="/api/v1/employees", tags=["Employees"])
+
+
+def commit_or_400(db: Session) -> None:
+    """Turn a DB constraint violation into a readable 4xx instead of a 500."""
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        if "employees_email_key" in str(exc.orig):
+            raise HTTPException(
+                status_code=409,
+                detail="An employee with this email already exists.",
+            ) from exc
+        raise HTTPException(
+            status_code=400,
+            detail="Those details don't satisfy a database constraint.",
+        ) from exc
 
 
 @router.get("", response_model=list[EmployeeListItem])
@@ -46,7 +64,7 @@ def create_employee(payload: EmployeeCreate, db: Session = Depends(get_db)):
     now = datetime.utcnow()
     emp = Employee(**payload.model_dump(), created_at=now, updated_at=now)
     db.add(emp)
-    db.commit()
+    commit_or_400(db)
     db.refresh(emp)
     return employee_to_out(emp)
 
@@ -59,7 +77,7 @@ def update_employee(employee_id: uuid.UUID, payload: EmployeeUpdate, db: Session
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(emp, field, value)
     emp.updated_at = datetime.utcnow()
-    db.commit()
+    commit_or_400(db)
     db.refresh(emp)
     return employee_to_out(emp)
 

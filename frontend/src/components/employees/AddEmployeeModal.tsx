@@ -1,8 +1,10 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { X } from "lucide-react";
 import { createEmployee, updateEmployee } from "../../api/employees";
-import type { EmployeeCreate, EmployeeOut } from "../../api/types";
+import { PERFORMANCE_RATINGS } from "../../api/types";
+import type { EmployeeCreate, EmployeeOut, PerformanceRating } from "../../api/types";
 
 const EMPTY_FORM: EmployeeCreate = {
   first_name: "",
@@ -16,7 +18,7 @@ const EMPTY_FORM: EmployeeCreate = {
   location: "",
   probation_completed: false,
   annual_leave_balance: null,
-  performance_rating: "",
+  performance_rating: null,
 };
 
 function toForm(employee: EmployeeOut): EmployeeCreate {
@@ -34,6 +36,22 @@ function toForm(employee: EmployeeOut): EmployeeCreate {
     annual_leave_balance: employee.annual_leave_balance,
     performance_rating: employee.performance_rating,
   };
+}
+
+function errorMessage(error: unknown, isEditing: boolean): string {
+  const fallback = `Couldn't ${isEditing ? "update" : "add"} this employee. Check the fields and try again.`;
+  if (!isAxiosError(error)) return fallback;
+
+  const detail = (error.response?.data as { detail?: unknown } | undefined)?.detail;
+  if (typeof detail === "string") return detail;
+
+  // FastAPI validation errors arrive as a list; surface the first failing field.
+  if (Array.isArray(detail) && detail.length > 0) {
+    const first = detail[0] as { loc?: unknown[]; msg?: string };
+    const field = Array.isArray(first.loc) ? first.loc[first.loc.length - 1] : null;
+    if (typeof field === "string" && first.msg) return `${field}: ${first.msg}`;
+  }
+  return fallback;
 }
 
 const inputClass =
@@ -100,8 +118,8 @@ export function AddEmployeeModal({
     if (!isValid || mutation.isPending) return;
     mutation.mutate({
       ...form,
-      annual_leave_balance: form.annual_leave_balance || null,
-      performance_rating: form.performance_rating?.trim() || null,
+      annual_leave_balance: form.annual_leave_balance ?? null,
+      performance_rating: form.performance_rating || null,
     });
   };
 
@@ -212,12 +230,23 @@ export function AddEmployeeModal({
             />
           </Field>
           <Field label="Performance Rating">
-            <input
+            <select
               className={inputClass}
               value={form.performance_rating ?? ""}
-              onChange={(e) => set("performance_rating", e.target.value)}
-              placeholder="e.g. Very Good"
-            />
+              onChange={(e) =>
+                set(
+                  "performance_rating",
+                  e.target.value === "" ? null : (e.target.value as PerformanceRating)
+                )
+              }
+            >
+              <option value="">Not rated</option>
+              {PERFORMANCE_RATINGS.map((rating) => (
+                <option key={rating} value={rating}>
+                  {rating}
+                </option>
+              ))}
+            </select>
           </Field>
           <label className="col-span-2 flex items-center gap-2 text-sm">
             <input
@@ -231,7 +260,7 @@ export function AddEmployeeModal({
 
           {mutation.isError && (
             <p className="col-span-2 text-xs text-coral">
-              Couldn't {isEditing ? "update" : "add"} this employee. Check the fields and try again.
+              {errorMessage(mutation.error, isEditing)}
             </p>
           )}
 

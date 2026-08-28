@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../theme/app_palette.dart';
 import '../theme/labels.dart';
+import 'category_badge.dart';
 
 class StatusBadge extends StatelessWidget {
   final String status;
@@ -7,20 +9,9 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: statusBg(status),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        statusLabels[status] ?? status,
-        style: TextStyle(
-          color: statusColor(status),
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+    return DotBadge(
+      label: statusLabels[status] ?? status,
+      color: statusColor(context.palette, status),
     );
   }
 }

@@ -128,14 +128,14 @@ export function EmployeeProfilePanel({
         </div>
 
         <div
-          className="relative h-24 w-full"
+          className="h-24 w-full"
           style={{
             background:
               "radial-gradient(120% 140% at 15% 10%, #fff6da 0%, transparent 45%), radial-gradient(90% 120% at 85% 0%, #f7d35c 0%, transparent 55%), linear-gradient(135deg, #33353f 0%, #565a6b 45%, #f5c842 100%)",
           }}
         />
 
-        <div className="-mt-10 mb-3 flex justify-center px-6">
+        <div className="relative z-10 -mt-10 mb-3 flex justify-center px-6">
           <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-surface bg-slate text-xl font-bold text-cream shadow-lg">
             {initials(name)}
           </div>

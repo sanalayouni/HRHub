@@ -1,8 +1,11 @@
 import uuid
 from datetime import date, datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict
+
+# Mirrors the employees_performance_rating_check constraint in Postgres.
+PerformanceRating = Literal["Excellent", "Very Good", "Good", "Average", "Poor"]
 
 
 class EmployeeListItem(BaseModel):
@@ -30,7 +33,7 @@ class EmployeeCreate(BaseModel):
     location: str
     probation_completed: Optional[bool] = None
     annual_leave_balance: Optional[int] = None
-    performance_rating: Optional[str] = None
+    performance_rating: Optional[PerformanceRating] = None
 
 
 class EmployeeUpdate(BaseModel):
@@ -45,7 +48,7 @@ class EmployeeUpdate(BaseModel):
     location: Optional[str] = None
     probation_completed: Optional[bool] = None
     annual_leave_balance: Optional[int] = None
-    performance_rating: Optional[str] = None
+    performance_rating: Optional[PerformanceRating] = None
 
 
 class EmployeeOut(BaseModel):

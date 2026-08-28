@@ -52,3 +52,41 @@ class EmployeeOut {
     );
   }
 }
+
+/// Slim row returned by `GET /employees` for the directory list.
+class EmployeeListItem {
+  final String employeeId;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String jobTitle;
+  final String department;
+  final String employmentStartDate;
+  final String location;
+
+  EmployeeListItem({
+    required this.employeeId,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.jobTitle,
+    required this.department,
+    required this.employmentStartDate,
+    required this.location,
+  });
+
+  String get fullName => "$firstName $lastName";
+
+  factory EmployeeListItem.fromJson(Map<String, dynamic> json) {
+    return EmployeeListItem(
+      employeeId: json['employee_id'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      email: json['email'],
+      jobTitle: json['job_title'],
+      department: json['department'],
+      employmentStartDate: json['employment_start_date'],
+      location: json['location'],
+    );
+  }
+}

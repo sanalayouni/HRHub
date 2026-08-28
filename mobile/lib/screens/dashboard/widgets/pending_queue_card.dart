@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../models/request_model.dart';
+import '../../../theme/app_palette.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/labels.dart';
 import '../../../widgets/category_badge.dart';
+import '../../../widgets/glass_card.dart';
 
 class PendingQueueCard extends StatelessWidget {
   final List<RequestListItem> requests;
@@ -11,93 +13,113 @@ class PendingQueueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Pending Requests', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            if (requests.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(
+    final palette = context.palette;
+
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('Pending Requests', style: heading(size: 15, color: palette.ink)),
+              const Spacer(),
+              if (requests.isNotEmpty)
+                TextButton(
+                  onPressed: () => context.go('/requests'),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                   child: Text(
-                    "Nothing waiting on you right now.",
-                    style: TextStyle(color: AppColors.inkSoft),
+                    'View all',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: palette.inkSoft,
+                    ),
                   ),
                 ),
-              )
-            else
-              ...requests.take(6).map((req) {
-                final ai = normalizeAiRecommendation(req.aiRecommendation);
-                return InkWell(
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (requests.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'Nothing waiting on you right now.',
+                  style: TextStyle(fontSize: 13, color: palette.inkSoft),
+                ),
+              ),
+            )
+          else
+            ...requests.take(6).map((req) {
+              final ai = normalizeAiRecommendation(palette, req.aiRecommendation);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  color: palette.cream,
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () => context.push('/requests/${req.id}'),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.cream,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => context.push('/requests/${req.id}'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  CategoryBadge(category: req.requestType),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      req.employeeName ?? 'Unknown Employee',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
-                                    ),
+                              Expanded(
+                                child: Text(
+                                  req.employeeName ?? 'Unknown Employee',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: palette.ink,
                                   ),
-                                ],
+                                ),
                               ),
-                              const SizedBox(height: 4),
                               Text(
-                                req.summary ?? 'No summary available',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 12, color: AppColors.inkSoft),
+                                formatConfidence(req.confidence),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: palette.inkSoft,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: ai.bg,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            ai.label,
+                          const SizedBox(height: 4),
+                          Text(
+                            req.summary ?? 'No summary available',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: ai.color,
+                              fontSize: 12,
+                              color: palette.inkSoft,
+                              height: 1.4,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          formatConfidence(req.confidence),
-                          style: const TextStyle(fontSize: 11, color: AppColors.inkSoft),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              CategoryBadge(category: req.requestType),
+                              DotBadge(label: ai.label, color: ai.color),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
-              }),
-          ],
-        ),
+                ),
+              );
+            }),
+        ],
       ),
     );
   }
