@@ -1,6 +1,8 @@
 # Environment variables
 .env
 .env.*
+# ...but a value-free template is useful to share
+!.env.example
 
 # Credentials / secrets
 credentials.json
@@ -31,3 +33,23 @@ venv/
 employee_data/
 real_emails/
 private_policies/
+
+# Node / frontend build output.
+# The Vite and Flutter scaffolds already ignore these in their own subfolders;
+# these are here so a future package.json at the repo root is covered too.
+node_modules/
+dist/
+build/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Editor / tooling
+.idea/
+
+# Local-only working folders - not part of the shipped project
+.claude/
+design.ref/

@@ -1,0 +1,1760 @@
+{
+  "updatedAt": "2026-08-27T19:12:22.956Z",
+  "createdAt": "2026-08-12T13:29:22.944Z",
+  "id": "25f0533d802f46f4",
+  "name": "Rag - Fixed (storage)",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        -640
+      ],
+      "id": "8862d386-af7d-4448-bb40-f09e4398b5a7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9aTxVIbzh10XUZq5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1840,
+        -48
+      ],
+      "id": "9028630c-5a71-4139-b363-0b488d90ad1d",
+      "name": "When chat message received",
+      "webhookId": "bb59a526-4344-4870-ae7f-e87026d405f5"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "15UAsfdjJlheANEab4cH3qkp8Awg1RJBy",
+          "mode": "list",
+          "cachedResultName": "Company_Flexible_Work_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/15UAsfdjJlheANEab4cH3qkp8Awg1RJBy/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        576
+      ],
+      "id": "09829dfd-4e0a-454b-a70d-ebf49803dd25",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NHPdve8IbWyXnKkg",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "flexwork_documents",
+          "mode": "list",
+          "cachedResultName": "flexwork_documents"
+        },
+        "options": {
+          "queryName": "match_flexwork_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1504,
+        592
+      ],
+      "id": "0ade5f4c-e8b2-4b4b-8476-9cb7b937130c",
+      "name": "Supabase Vector Store2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1712,
+        864
+      ],
+      "id": "eae1f324-5cac-468b-aa48-56a68484567e",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        864
+      ],
+      "id": "d7a55fbe-2c5e-48a8-b770-b245e2a55fd7",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Flexible Work Agent for Axia, an HR decision-support system. Your job is to evaluate an employee's remote-work or flexible-schedule request and produce a RECOMMENDATION for the HR manager to review — you never approve or reject anything yourself, you only recommend.\n\nFor every request:\n1. Always call the Employee Database tool first to look up the employee's role, department, tenure, and performance rating.\n2. The relevant policy excerpts are already included in the message below, under \"=== COMPANY POLICY (retrieved for this request) ===\". Read them there - there is no policy tool to call.\n3. Compare the request against BOTH the employee's data and the policy excerpts in the message before deciding.\n\nIf you can't find the employee in the database or can't find a relevant policy clause, say so explicitly instead of guessing.\n\nRespond in exactly this format:\nRecommendation: Approve | Reject | Request Info\nConfidence: <0-100>%\nReasoning: <plain-language explanation, citing the specific policy clause and employee data point(s) you used>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1872,
+        -16
+      ],
+      "id": "1da01f09-1562-4b14-9026-e76cbd430be3",
+      "name": "flexible work agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "call this tool to look up rules from the Company Flexible Work Policy",
+        "tableName": {
+          "__rl": true,
+          "value": "flexwork_documents",
+          "mode": "list",
+          "cachedResultName": "flexwork_documents"
+        },
+        "options": {
+          "queryName": "match_flexwork_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1808,
+        496
+      ],
+      "id": "07de1dca-493c-47b1-ba6e-752bedf6a47a",
+      "name": "Supabase Vector Store3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "dS2XN6nam5bpzFX8",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this to look up a specific employee's data — role, department, tenure, manager, remote-work eligibility — by name or email. Do NOT use this for questions about the flexible work policy rules themselves.",
+        "operation": "executeQuery",
+        "query": "select * FROM employees\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2144,
+        416
+      ],
+      "id": "223edb0c-7b23-4867-b470-8ba569cb174f",
+      "name": "EmployeeDatabase",
+      "credentials": {
+        "postgres": {
+          "id": "ojTE4CXFiO0rTPYP",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        352
+      ],
+      "id": "ce36d9ca-6291-4571-8a81-bba259c82c15",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Gmail Trigger').item.json.threadId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1216,
+        240
+      ],
+      "id": "c10dbbaf-2729-4c76-8f67-38c75efe6826",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        208
+      ],
+      "id": "fcd07caf-aac2-41e2-8757-4461276ba727",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Leave Request Agent , an HR decision-support system. Your job is to evaluate an employee's leave request and produce a RECOMMENDATION for the HR manager to review — you never approve or reject anything yourself, you only recommend.\n\nFor every request:\n1. Always call the Employee Database tool first to look up the employee's tenure, role, leave balance, and history.\n2. The relevant policy excerpts are already included in the message below, under \"=== COMPANY POLICY (retrieved for this request) ===\". Read them there - there is no policy tool to call.\n3. Compare the request against BOTH the employee's data and the policy excerpts in the message before deciding.\n\nIf you can't find the employee in the database or can't find a relevant policy clause, say so explicitly instead of guessing.\n\nRespond in exactly this format:\nRecommendation: Approve | Reject | Request Info\nConfidence: <0-100>%\nReasoning: <plain-language explanation, citing the specific policy clause and employee data point(s) you used>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1072,
+        16
+      ],
+      "id": "76b413fb-af18-4353-a202-f6db3ecb11ea",
+      "name": "leave request agent"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "15yFOcuMSZaSW7bR1UFJA0Crpl3PPA8Vw",
+          "mode": "list",
+          "cachedResultName": "Company_Salary_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/15yFOcuMSZaSW7bR1UFJA0Crpl3PPA8Vw/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -64,
+        544
+      ],
+      "id": "510e8818-50bc-40b1-9fd8-23cd245b74fc",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NHPdve8IbWyXnKkg",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "salary_documents",
+          "mode": "list"
+        },
+        "options": {
+          "queryName": "match_salary_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        480
+      ],
+      "id": "7621f428-0aa2-4aff-b113-3b2d44d8533d",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        144,
+        736
+      ],
+      "id": "841d1ef0-c2a6-4c5a-8311-32258cdd7028",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        736
+      ],
+      "id": "fd604d5d-a64d-4e0f-be35-0166c30f72f4",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "call this tool to look up rules from the Company Salary Policy",
+        "tableName": {
+          "__rl": true,
+          "value": "salary_documents",
+          "mode": "list",
+          "cachedResultName": "salary_documents"
+        },
+        "options": {
+          "queryName": "match_salary_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        352
+      ],
+      "id": "9dcf0aa8-38ae-4a4c-a3f6-d05b61b070fe",
+      "name": "Supabase Vector Store4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Salary Request Agent for Axia, an HR decision-support system. Your job is to evaluate an employee's salary review, salary certificate, or payroll-issue request and produce a RECOMMENDATION for the HR manager to review — you never approve or reject anything yourself, you only recommend.\n\nFor every request:\n1. Always call the Employee Database tool first to look up the employee's tenure, role, performance rating, and salary review history.\n2. The relevant policy excerpts are already included in the message below, under \"=== COMPANY POLICY (retrieved for this request) ===\". Read them there - there is no policy tool to call.\n3. Compare the request against BOTH the employee's data and the policy excerpts in the message before deciding.\n\nIf you can't find the employee in the database or can't find a relevant policy clause, say so explicitly instead of guessing. Remember that per policy, salary increases are recommendations only — phrase your reasoning accordingly.\n\nRespond in exactly this format:\nRecommendation: Approve | Reject | Request Info\nConfidence: <0-100>%\nReasoning: <plain-language explanation, citing the specific policy clause and employee data point(s) you used>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        64,
+        112
+      ],
+      "id": "9512da46-bdf9-4d0a-b544-6ffc440c0d08",
+      "name": "salary request agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        336
+      ],
+      "id": "36ef6ab1-6274-4717-9b9e-6405136eee87",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1hG6G4SExWJDNTPotIgPF6nOL8Mtk1QT_",
+          "mode": "list",
+          "cachedResultName": "Company_Vacation_Leave_Policy.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1hG6G4SExWJDNTPotIgPF6nOL8Mtk1QT_/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1648,
+        448
+      ],
+      "id": "5008b7bc-7e22-41c8-8ad4-2a32d42a1e0a",
+      "name": "Download file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NHPdve8IbWyXnKkg",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        656
+      ],
+      "id": "242cd0fb-6e3f-48ce-92eb-046670132035",
+      "name": "Embeddings Ollama2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -1232,
+        672
+      ],
+      "id": "49041300-3d85-4d1b-9769-b5fd7050bb09",
+      "name": "Default Data Loader2"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "leave_documents",
+          "mode": "list",
+          "cachedResultName": "leave_documents"
+        },
+        "options": {
+          "queryName": "match_leave_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -1344,
+        448
+      ],
+      "id": "bed523ac-f8ff-4654-a533-f1624fe05ddf",
+      "name": "Supabase Vector Store5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this to look up a specific employee's data — leave balance, manager, department, start date, probation status — by name or email. Do NOT use this for questions about the vacation policy rules themselves.",
+        "operation": "executeQuery",
+        "query": "select * FROM employees\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -1072,
+        256
+      ],
+      "id": "ce38281f-c9d5-4df2-8d24-3161991263dc",
+      "name": "query_employee_database",
+      "credentials": {
+        "postgres": {
+          "id": "ojTE4CXFiO0rTPYP",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Call this tool to search the Company Vacation Leave Policy. Input must be a plain natural-language question (e.g. \"how many days notice is required for annual leave\"). Do NOT write SQL — this is a semantic text search, not a database table.",
+        "tableName": {
+          "__rl": true,
+          "value": "leave_documents",
+          "mode": "list",
+          "cachedResultName": "leave_documents"
+        },
+        "options": {
+          "queryName": "match_leave_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -928,
+        448
+      ],
+      "id": "d482725f-a728-4338-9594-c3513115dde2",
+      "name": "the company vacation leave policy",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111111",
+              "name": "chatInput",
+              "type": "string",
+              "value": "={{ 'From: ' +$json.From  + '\\nSubject: ' + $json.Subject + '\\n\\n' + ($json.text || $json.snippet || '') }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111112",
+              "name": "email_from",
+              "type": "string",
+              "value": "={{ ($json.From.match(/<(.*)>/) ? $json.From.match(/<(.*)>/)[1] : $json.From).toLowerCase().trim() }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111113",
+              "name": "email_subject",
+              "type": "string",
+              "value": "={{ $json.Subject }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111114",
+              "name": "gmail_message_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "b1a1a111-1111-4111-8111-111111111115",
+              "name": "gmail_thread_id",
+              "type": "string",
+              "value": "={{ $json.threadId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        -640
+      ],
+      "id": "128c9c32-195f-457f-bcd9-bf013a11b2d2",
+      "name": "Normalize Email"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -352
+      ],
+      "id": "069cd9e9-a25a-4ba3-8d10-89b0d159fe42",
+      "name": "Supervisor Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ghHgFfQEKbWp3CCo",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize the following email in 2-3 plain sentences, focused only on what the sender is asking for (the type of HR request, and key details like dates, amounts, or duration). Ignore greetings and signatures.\n\nEmail:\n{{ $json.chatInput }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -96,
+        -640
+      ],
+      "id": "0d95221d-3ce5-474c-b30d-4289a4c14b54",
+      "name": "Summarize Email"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the HR inbox supervisor. Classify the email summary below into exactly one category: leave, salary, flexwork, or not_hr.\n\nCategories:\n- leave: vacation, PTO, sick leave, time off, leave balance questions\n- salary: pay, compensation, raises, salary review, bonuses, expense reimbursement\n- flexwork: remote work, hybrid schedule, flexible hours, work-from-home\n- not_hr: anything that is not an HR request\n\nEmail summary:\n{{ $json.text }}\n\nRespond with ONLY the single category word (leave, salary, flexwork, or not_hr). No punctuation, no explanation, nothing else.\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        128,
+        -640
+      ],
+      "id": "d6f5d5a6-ff74-460f-b38b-e66018c36c1b",
+      "name": "Supervisor Classify",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 500
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        752,
+        -720
+      ],
+      "id": "a939f988-067d-4f9e-aebd-e0bc5204109f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1a1a111-1111-4111-8111-111111111121",
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "leave",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "leave"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1a1a111-1111-4111-8111-111111111122",
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "salary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "salary"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1a1a111-1111-4111-8111-111111111123",
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "flexwork",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "flexwork"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1056,
+        -688
+      ],
+      "id": "19ba07f4-8c3c-41fc-bbd1-5c9e1a186128",
+      "name": "Supervisor Router"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -816
+      ],
+      "id": "788ee354-4813-4f41-a3ad-b3dfc250a210",
+      "name": "Not an HR request - Ignore"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = ($input.first().json.text || '').toLowerCase().trim();\nlet category = 'not_hr';\nif (raw.includes('leave')) category = 'leave';\nelse if (raw.includes('salary')) category = 'salary';\nelse if (raw.includes('flex')) category = 'flexwork';\n\nreturn [{\n  json: {\n    category,\n    is_hr_request: category !== 'not_hr',\n    raw_classification: raw\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -496
+      ],
+      "id": "b7c2a441-1a3f-4c9e-9f0a-2f6e2a1d5c30",
+      "name": "Parse Category"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "5"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1744,
+        384
+      ],
+      "id": "69897d8f-7b32-4c44-92b0-e9e5fae7ccf0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this to look up a specific employee's data — role, salary band, tenure, department, manager — by name or email. Do NOT use this for questions about the salary policy rules themselves.",
+        "operation": "executeQuery",
+        "query": "select * FROM employees\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        160,
+        336
+      ],
+      "id": "d5764b4a-8cda-4ddd-872b-add3dc24a08e",
+      "name": "EmployeeDatabase2",
+      "credentials": {
+        "postgres": {
+          "id": "ojTE4CXFiO0rTPYP",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.gmail_thread_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        336
+      ],
+      "id": "7c1e6d26-7c17-4f09-b910-feac84823f30",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"recommendation\": \"Approve\",\n  \"confidence\": 92,\n  \"reasoning\": \"The employee has sufficient leave balance and meets the applicable policy requirements.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        832,
+        1392
+      ],
+      "id": "c16a48f8-bac3-417d-a2ea-4379719555ce",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "tableId": "decisions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "request_id",
+              "fieldValue": "={{ $json.request_id }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "confidence",
+              "fieldValue": "={{ $json.confidence }}"
+            },
+            {
+              "fieldId": "decision_reason",
+              "fieldValue": "={{ $json.decision_reason }}"
+            },
+            {
+              "fieldId": "ai_recommendation",
+              "fieldValue": "={{ $json.ai_recommendation }}"
+            },
+            {
+              "fieldId": "notes",
+              "fieldValue": "={{ $json.notes }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        16
+      ],
+      "id": "b14a5805-bfdf-46b0-b1a9-eb0829d95be6",
+      "name": "desicions table",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "requests",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "employee_email",
+              "fieldValue": "={{ $('Normalize Email').item.json.email_from }}"
+            },
+            {
+              "fieldId": "gmail_thread_id",
+              "fieldValue": "={{ $('Normalize Email').item.json.gmail_thread_id }}"
+            },
+            {
+              "fieldId": "gmail_message_id",
+              "fieldValue": "={{ $('Normalize Email').item.json.gmail_message_id }}"
+            },
+            {
+              "fieldId": "summary",
+              "fieldValue": "={{ $('Summarize Email').item.json.text }}"
+            },
+            {
+              "fieldId": "request_text",
+              "fieldValue": "={{ $('Gmail Trigger').item.json.snippet }}"
+            },
+            {
+              "fieldId": "request_type",
+              "fieldValue": "={{ $json.category }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        832,
+        -400
+      ],
+      "id": "42eda774-5b5a-4cb9-a93d-9c7378b3f3f5",
+      "name": "request table",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "decisions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "request_id",
+              "fieldValue": "={{ $json.request_id }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "confidence",
+              "fieldValue": "={{ $json.confidence }}"
+            },
+            {
+              "fieldId": "decision_reason",
+              "fieldValue": "={{ $json.decision_reason }}"
+            },
+            {
+              "fieldId": "ai_recommendation",
+              "fieldValue": "={{ $json.ai_recommendation }}"
+            },
+            {
+              "fieldId": "notes",
+              "fieldValue": "={{ $json.notes }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2784,
+        48
+      ],
+      "id": "0137cd8c-bb90-4a2e-a545-3c4e4a925629",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalise whatever the agent produced into a decisions-table row.\nconst out = $json.output;\n\nlet recommendation = null;\nlet confidence = null;\nlet reasoning = null;\n\nfunction fromObject(o) {\n  if (!o || typeof o !== 'object') return false;\n  if (o.recommendation !== undefined) recommendation = o.recommendation;\n  if (o.confidence !== undefined) confidence = o.confidence;\n  if (o.reasoning !== undefined) reasoning = o.reasoning;\n  else if (o.reason !== undefined) reasoning = o.reason;\n  return recommendation !== null || confidence !== null || reasoning !== null;\n}\n\nif (!fromObject(out)) {\n  const text = typeof out === 'string' ? out : JSON.stringify(out ?? '');\n\n  // The agent may return JSON wrapped in prose or a ```json fence.\n  let parsed = null;\n  const braced = text.match(/\\{[\\s\\S]*\\}/);\n  if (braced) {\n    try { parsed = JSON.parse(braced[0]); } catch (e) { parsed = null; }\n  }\n\n  if (!fromObject(parsed)) {\n    const rec = text.match(/Recommendation\\s*[:\\-]\\s*(Approve\\w*|Reject\\w*|Request\\s*Info)/i);\n    const conf = text.match(/Confidence\\s*[:\\-]\\s*(\\d+(?:\\.\\d+)?)\\s*(%?)/i);\n    const why = text.match(/Reasoning\\s*[:\\-]\\s*([\\s\\S]*)/i);\n\n    if (rec) recommendation = rec[1];\n    if (conf) confidence = Number(conf[1]);\n    if (why) reasoning = why[1].trim();\n\n    // Last resort: look for a bare verdict word anywhere in the text.\n    if (!recommendation) {\n      if (/\\brequest\\s*info\\b/i.test(text)) recommendation = 'Request Info';\n      else if (/\\breject/i.test(text)) recommendation = 'Reject';\n      else if (/\\bapprove/i.test(text)) recommendation = 'Approve';\n    }\n    if (!reasoning && text.trim()) reasoning = text.trim();\n  }\n}\n\n// Canonicalise the verdict.\nif (typeof recommendation === 'string') {\n  const r = recommendation.trim().toLowerCase();\n  if (r.startsWith('approve')) recommendation = 'Approve';\n  else if (r.startsWith('reject')) recommendation = 'Reject';\n  else if (r.replace(/[\\s_-]/g, '').startsWith('requestinfo')) recommendation = 'Request Info';\n  else recommendation = null;\n} else {\n  recommendation = null;\n}\n\n// decisions.confidence has CHECK (confidence >= 0 AND confidence <= 1),\n// so a 0-100 percentage has to be scaled down before it is stored.\n// Guard the empty cases first: Number(null) is 0, which would silently\n// store a real \"zero confidence\" for an answer we simply could not parse.\nif (confidence === null || confidence === undefined || confidence === '') {\n  confidence = null;\n} else {\n  confidence = Number(confidence);\n  if (!Number.isFinite(confidence)) {\n    confidence = null;\n  } else {\n    if (confidence > 1) confidence = confidence / 100;\n    confidence = Math.min(1, Math.max(0, confidence));\n    confidence = Math.round(confidence * 1000) / 1000;\n  }\n}\n\nif (typeof reasoning === 'string') {\n  reasoning = reasoning.trim() || null;\n} else if (reasoning != null) {\n  reasoning = String(reasoning);\n} else {\n  reasoning = null;\n}\n\nconst errors = [];\nif (!recommendation) errors.push('Could not parse a recommendation');\nif (confidence === null) errors.push('Could not parse a confidence value');\nif (!reasoning) errors.push('Missing reasoning');\n\n// The requests row inserted upstream in this execution.\n// NOTE: deliberately NOT $('request table').item — paired-item resolution has to\n// walk back through the Merge node and the agent sub-runs, and from inside the\n// sandboxed task runner that RPC never returns, so the Code node gets killed at\n// the 300s task timeout. .all() is a direct fetch of the node's output: no walk.\nconst requestRows = $('request table').all();\nconst requestRow = requestRows[$runIndex] || requestRows[0];\nconst requestId = requestRow && requestRow.json ? requestRow.json.id : null;\nif (!requestId) {\n  throw new Error('No requests row found upstream - cannot link this decision.');\n}\n\nreturn [{\n  json: {\n    request_id: requestId,\n\n    // HR stays in the loop: the AI's own verdict lives in ai_recommendation.\n    status: 'needs_review',\n\n    confidence: confidence,\n    decision_reason: reasoning,\n    ai_recommendation: recommendation,\n    notes: errors.length ? errors.join('; ') : null,\n\n    is_valid: errors.length === 0,\n    raw_output: typeof out === 'string' ? out : JSON.stringify(out ?? null),\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        16
+      ],
+      "id": "ebb02cee-300d-4af5-8bf4-01a5192d602b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simple UUID v4 generator (no external modules)\nfunction uuidv4() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\n// Build the output object\nreturn [\n  {\n    request_id: uuidv4(),                 // valid UUID for Supabase\n    gmail_id: $json.gmail_message_id,     // Gmail message ID\n    thread_id: $json.gmail_thread_id,     // Gmail thread ID\n    request_text: $json.request_text,     // original email text\n    summary: $json.summary                // summary if needed\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        -256
+      ],
+      "id": "3891d85e-697a-482d-9eea-c1f027244278",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalise whatever the agent produced into a decisions-table row.\nconst out = $json.output;\n\nlet recommendation = null;\nlet confidence = null;\nlet reasoning = null;\n\nfunction fromObject(o) {\n  if (!o || typeof o !== 'object') return false;\n  if (o.recommendation !== undefined) recommendation = o.recommendation;\n  if (o.confidence !== undefined) confidence = o.confidence;\n  if (o.reasoning !== undefined) reasoning = o.reasoning;\n  else if (o.reason !== undefined) reasoning = o.reason;\n  return recommendation !== null || confidence !== null || reasoning !== null;\n}\n\nif (!fromObject(out)) {\n  const text = typeof out === 'string' ? out : JSON.stringify(out ?? '');\n\n  // The agent may return JSON wrapped in prose or a ```json fence.\n  let parsed = null;\n  const braced = text.match(/\\{[\\s\\S]*\\}/);\n  if (braced) {\n    try { parsed = JSON.parse(braced[0]); } catch (e) { parsed = null; }\n  }\n\n  if (!fromObject(parsed)) {\n    const rec = text.match(/Recommendation\\s*[:\\-]\\s*(Approve\\w*|Reject\\w*|Request\\s*Info)/i);\n    const conf = text.match(/Confidence\\s*[:\\-]\\s*(\\d+(?:\\.\\d+)?)\\s*(%?)/i);\n    const why = text.match(/Reasoning\\s*[:\\-]\\s*([\\s\\S]*)/i);\n\n    if (rec) recommendation = rec[1];\n    if (conf) confidence = Number(conf[1]);\n    if (why) reasoning = why[1].trim();\n\n    // Last resort: look for a bare verdict word anywhere in the text.\n    if (!recommendation) {\n      if (/\\brequest\\s*info\\b/i.test(text)) recommendation = 'Request Info';\n      else if (/\\breject/i.test(text)) recommendation = 'Reject';\n      else if (/\\bapprove/i.test(text)) recommendation = 'Approve';\n    }\n    if (!reasoning && text.trim()) reasoning = text.trim();\n  }\n}\n\n// Canonicalise the verdict.\nif (typeof recommendation === 'string') {\n  const r = recommendation.trim().toLowerCase();\n  if (r.startsWith('approve')) recommendation = 'Approve';\n  else if (r.startsWith('reject')) recommendation = 'Reject';\n  else if (r.replace(/[\\s_-]/g, '').startsWith('requestinfo')) recommendation = 'Request Info';\n  else recommendation = null;\n} else {\n  recommendation = null;\n}\n\n// decisions.confidence has CHECK (confidence >= 0 AND confidence <= 1),\n// so a 0-100 percentage has to be scaled down before it is stored.\n// Guard the empty cases first: Number(null) is 0, which would silently\n// store a real \"zero confidence\" for an answer we simply could not parse.\nif (confidence === null || confidence === undefined || confidence === '') {\n  confidence = null;\n} else {\n  confidence = Number(confidence);\n  if (!Number.isFinite(confidence)) {\n    confidence = null;\n  } else {\n    if (confidence > 1) confidence = confidence / 100;\n    confidence = Math.min(1, Math.max(0, confidence));\n    confidence = Math.round(confidence * 1000) / 1000;\n  }\n}\n\nif (typeof reasoning === 'string') {\n  reasoning = reasoning.trim() || null;\n} else if (reasoning != null) {\n  reasoning = String(reasoning);\n} else {\n  reasoning = null;\n}\n\nconst errors = [];\nif (!recommendation) errors.push('Could not parse a recommendation');\nif (confidence === null) errors.push('Could not parse a confidence value');\nif (!reasoning) errors.push('Missing reasoning');\n\n// The requests row inserted upstream in this execution.\n// NOTE: deliberately NOT $('request table').item — paired-item resolution has to\n// walk back through the Merge node and the agent sub-runs, and from inside the\n// sandboxed task runner that RPC never returns, so the Code node gets killed at\n// the 300s task timeout. .all() is a direct fetch of the node's output: no walk.\nconst requestRows = $('request table').all();\nconst requestRow = requestRows[$runIndex] || requestRows[0];\nconst requestId = requestRow && requestRow.json ? requestRow.json.id : null;\nif (!requestId) {\n  throw new Error('No requests row found upstream - cannot link this decision.');\n}\n\nreturn [{\n  json: {\n    request_id: requestId,\n\n    // HR stays in the loop: the AI's own verdict lives in ai_recommendation.\n    status: 'needs_review',\n\n    confidence: confidence,\n    decision_reason: reasoning,\n    ai_recommendation: recommendation,\n    notes: errors.length ? errors.join('; ') : null,\n\n    is_valid: errors.length === 0,\n    raw_output: typeof out === 'string' ? out : JSON.stringify(out ?? null),\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        -16
+      ],
+      "id": "dd08a621-8364-4cff-83c6-a9a065ac6f2b",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalise whatever the agent produced into a decisions-table row.\nconst out = $json.output;\n\nlet recommendation = null;\nlet confidence = null;\nlet reasoning = null;\n\nfunction fromObject(o) {\n  if (!o || typeof o !== 'object') return false;\n  if (o.recommendation !== undefined) recommendation = o.recommendation;\n  if (o.confidence !== undefined) confidence = o.confidence;\n  if (o.reasoning !== undefined) reasoning = o.reasoning;\n  else if (o.reason !== undefined) reasoning = o.reason;\n  return recommendation !== null || confidence !== null || reasoning !== null;\n}\n\nif (!fromObject(out)) {\n  const text = typeof out === 'string' ? out : JSON.stringify(out ?? '');\n\n  // The agent may return JSON wrapped in prose or a ```json fence.\n  let parsed = null;\n  const braced = text.match(/\\{[\\s\\S]*\\}/);\n  if (braced) {\n    try { parsed = JSON.parse(braced[0]); } catch (e) { parsed = null; }\n  }\n\n  if (!fromObject(parsed)) {\n    const rec = text.match(/Recommendation\\s*[:\\-]\\s*(Approve\\w*|Reject\\w*|Request\\s*Info)/i);\n    const conf = text.match(/Confidence\\s*[:\\-]\\s*(\\d+(?:\\.\\d+)?)\\s*(%?)/i);\n    const why = text.match(/Reasoning\\s*[:\\-]\\s*([\\s\\S]*)/i);\n\n    if (rec) recommendation = rec[1];\n    if (conf) confidence = Number(conf[1]);\n    if (why) reasoning = why[1].trim();\n\n    // Last resort: look for a bare verdict word anywhere in the text.\n    if (!recommendation) {\n      if (/\\brequest\\s*info\\b/i.test(text)) recommendation = 'Request Info';\n      else if (/\\breject/i.test(text)) recommendation = 'Reject';\n      else if (/\\bapprove/i.test(text)) recommendation = 'Approve';\n    }\n    if (!reasoning && text.trim()) reasoning = text.trim();\n  }\n}\n\n// Canonicalise the verdict.\nif (typeof recommendation === 'string') {\n  const r = recommendation.trim().toLowerCase();\n  if (r.startsWith('approve')) recommendation = 'Approve';\n  else if (r.startsWith('reject')) recommendation = 'Reject';\n  else if (r.replace(/[\\s_-]/g, '').startsWith('requestinfo')) recommendation = 'Request Info';\n  else recommendation = null;\n} else {\n  recommendation = null;\n}\n\n// decisions.confidence has CHECK (confidence >= 0 AND confidence <= 1),\n// so a 0-100 percentage has to be scaled down before it is stored.\n// Guard the empty cases first: Number(null) is 0, which would silently\n// store a real \"zero confidence\" for an answer we simply could not parse.\nif (confidence === null || confidence === undefined || confidence === '') {\n  confidence = null;\n} else {\n  confidence = Number(confidence);\n  if (!Number.isFinite(confidence)) {\n    confidence = null;\n  } else {\n    if (confidence > 1) confidence = confidence / 100;\n    confidence = Math.min(1, Math.max(0, confidence));\n    confidence = Math.round(confidence * 1000) / 1000;\n  }\n}\n\nif (typeof reasoning === 'string') {\n  reasoning = reasoning.trim() || null;\n} else if (reasoning != null) {\n  reasoning = String(reasoning);\n} else {\n  reasoning = null;\n}\n\nconst errors = [];\nif (!recommendation) errors.push('Could not parse a recommendation');\nif (confidence === null) errors.push('Could not parse a confidence value');\nif (!reasoning) errors.push('Missing reasoning');\n\n// The requests row inserted upstream in this execution.\n// NOTE: deliberately NOT $('request table').item — paired-item resolution has to\n// walk back through the Merge node and the agent sub-runs, and from inside the\n// sandboxed task runner that RPC never returns, so the Code node gets killed at\n// the 300s task timeout. .all() is a direct fetch of the node's output: no walk.\nconst requestRows = $('request table').all();\nconst requestRow = requestRows[$runIndex] || requestRows[0];\nconst requestId = requestRow && requestRow.json ? requestRow.json.id : null;\nif (!requestId) {\n  throw new Error('No requests row found upstream - cannot link this decision.');\n}\n\nreturn [{\n  json: {\n    request_id: requestId,\n\n    // HR stays in the loop: the AI's own verdict lives in ai_recommendation.\n    status: 'needs_review',\n\n    confidence: confidence,\n    decision_reason: reasoning,\n    ai_recommendation: recommendation,\n    notes: errors.length ? errors.join('; ') : null,\n\n    is_valid: errors.length === 0,\n    raw_output: typeof out === 'string' ? out : JSON.stringify(out ?? null),\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        112
+      ],
+      "id": "9b28004e-bb6e-42ac-bf06-f5148508d995",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "tableId": "decisions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "request_id",
+              "fieldValue": "={{ $json.request_id }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "confidence",
+              "fieldValue": "={{ $json.confidence }}"
+            },
+            {
+              "fieldId": "decision_reason",
+              "fieldValue": "={{ $json.decision_reason }}"
+            },
+            {
+              "fieldId": "ai_recommendation",
+              "fieldValue": "={{ $json.ai_recommendation }}"
+            },
+            {
+              "fieldId": "notes",
+              "fieldValue": "={{ $json.notes }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        736,
+        144
+      ],
+      "id": "34825467-a5b6-4d03-88af-5140c7b260ee",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "tableName": {
+          "__rl": true,
+          "value": "leave_documents",
+          "mode": "list",
+          "cachedResultName": "leave_documents"
+        },
+        "prompt": "={{ $json.summary || $json.chatInput }}",
+        "topK": 3,
+        "includeDocumentMetadata": false,
+        "options": {
+          "queryName": "match_leave_documents"
+        }
+      },
+      "id": "4f29b2ee-9b8b-4bd5-9695-6deddb611aa2",
+      "name": "Retrieve Leave Policy",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -1532,
+        16
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fold the retrieved policy excerpts into the agent's prompt.\n// Deliberately uses .all() rather than .item - a paired-item lookup here has to\n// walk back through the Merge node and never returns inside the task runner.\nconst ctxRuns = $('Merge').all();\nconst ctx = ((ctxRuns[$runIndex] || ctxRuns[0] || {}).json) || {};\n\nconst seen = new Set();\nconst excerpts = [];\nfor (const item of $input.all()) {\n  const doc = item.json && item.json.document;\n  const text = doc && typeof doc.pageContent === 'string' ? doc.pageContent.trim() : '';\n  if (!text || seen.has(text)) continue;   // guard against duplicate chunks\n  seen.add(text);\n  excerpts.push(text);\n}\n\nconst policy = excerpts.length\n  ? excerpts.map((t, i) => `[Policy excerpt ${i + 1}]\\n${t}`).join('\\n\\n')\n  : '(No policy excerpts were retrieved for this request.)';\n\nconst email = ctx.chatInput || ctx.request_text || '';\n\n// llama3.2:3b drops the output format when the policy block pushes the\n// instructions far up the prompt - it starts emitting invented tool calls as\n// plain text. Small models weight the END of the prompt most, so the format is\n// restated last.\nconst task = [\n  '=== YOUR TASK ===',\n  'Look up the employee with the Employee Database tool, compare the request',\n  'against the policy excerpts above, then reply with EXACTLY these three lines',\n  'and nothing else:',\n  'Recommendation: Approve | Reject | Request Info',\n  'Confidence: <0-100>%',\n  'Reasoning: <short paragraph citing the policy rule and the employee data used>',\n  '',\n  'Do NOT output tool-call syntax, JSON, or any other text.',\n].join('\\n');\n\nconst out = {\n  json: {\n    ...ctx,\n    retrieved_policy: policy,\n    policy_excerpt_count: excerpts.length,\n    chatInput:\n      `${email}\\n\\n=== COMPANY POLICY (retrieved for this request) ===\\n${policy}\\n\\n${task}`,\n  },\n};\n\n// The agent's memory sub-node traces item lineage, so this collapsed item has to\n// declare which input it came from. Without pairedItem the agent fails with\n// \"Paired item data for item from node '...' is unavailable\".\nif ($input.all().length > 0) {\n  out.pairedItem = { item: 0 };\n}\n\nreturn [out];"
+      },
+      "id": "a31ea19d-17c9-4294-a5c8-775e79bd7313",
+      "name": "Build Leave Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1312,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "tableName": {
+          "__rl": true,
+          "value": "salary_documents",
+          "mode": "list",
+          "cachedResultName": "salary_documents"
+        },
+        "prompt": "={{ $json.summary || $json.chatInput }}",
+        "topK": 3,
+        "includeDocumentMetadata": false,
+        "options": {
+          "queryName": "match_salary_documents"
+        }
+      },
+      "id": "961ce27a-09ef-46c0-95ee-ce3a21f86cff",
+      "name": "Retrieve Salary Policy",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -396,
+        112
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fold the retrieved policy excerpts into the agent's prompt.\n// Deliberately uses .all() rather than .item - a paired-item lookup here has to\n// walk back through the Merge node and never returns inside the task runner.\nconst ctxRuns = $('Merge').all();\nconst ctx = ((ctxRuns[$runIndex] || ctxRuns[0] || {}).json) || {};\n\nconst seen = new Set();\nconst excerpts = [];\nfor (const item of $input.all()) {\n  const doc = item.json && item.json.document;\n  const text = doc && typeof doc.pageContent === 'string' ? doc.pageContent.trim() : '';\n  if (!text || seen.has(text)) continue;   // guard against duplicate chunks\n  seen.add(text);\n  excerpts.push(text);\n}\n\nconst policy = excerpts.length\n  ? excerpts.map((t, i) => `[Policy excerpt ${i + 1}]\\n${t}`).join('\\n\\n')\n  : '(No policy excerpts were retrieved for this request.)';\n\nconst email = ctx.chatInput || ctx.request_text || '';\n\n// llama3.2:3b drops the output format when the policy block pushes the\n// instructions far up the prompt - it starts emitting invented tool calls as\n// plain text. Small models weight the END of the prompt most, so the format is\n// restated last.\nconst task = [\n  '=== YOUR TASK ===',\n  'Look up the employee with the Employee Database tool, compare the request',\n  'against the policy excerpts above, then reply with EXACTLY these three lines',\n  'and nothing else:',\n  'Recommendation: Approve | Reject | Request Info',\n  'Confidence: <0-100>%',\n  'Reasoning: <short paragraph citing the policy rule and the employee data used>',\n  '',\n  'Do NOT output tool-call syntax, JSON, or any other text.',\n].join('\\n');\n\nconst out = {\n  json: {\n    ...ctx,\n    retrieved_policy: policy,\n    policy_excerpt_count: excerpts.length,\n    chatInput:\n      `${email}\\n\\n=== COMPANY POLICY (retrieved for this request) ===\\n${policy}\\n\\n${task}`,\n  },\n};\n\n// The agent's memory sub-node traces item lineage, so this collapsed item has to\n// declare which input it came from. Without pairedItem the agent fails with\n// \"Paired item data for item from node '...' is unavailable\".\nif ($input.all().length > 0) {\n  out.pairedItem = { item: 0 };\n}\n\nreturn [out];"
+      },
+      "id": "16feebd0-78bc-4cfa-a80f-2fb6ebb07632",
+      "name": "Build Salary Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "tableName": {
+          "__rl": true,
+          "value": "flexwork_documents",
+          "mode": "list",
+          "cachedResultName": "flexwork_documents"
+        },
+        "prompt": "={{ $json.summary || $json.chatInput }}",
+        "topK": 3,
+        "includeDocumentMetadata": false,
+        "options": {
+          "queryName": "match_flexwork_documents"
+        }
+      },
+      "id": "d367e155-f951-4143-a2cd-6b31481478be",
+      "name": "Retrieve Flexwork Policy",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1412,
+        -16
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "IRxX8wnC5DYz0x3K",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fold the retrieved policy excerpts into the agent's prompt.\n// Deliberately uses .all() rather than .item - a paired-item lookup here has to\n// walk back through the Merge node and never returns inside the task runner.\nconst ctxRuns = $('Merge').all();\nconst ctx = ((ctxRuns[$runIndex] || ctxRuns[0] || {}).json) || {};\n\nconst seen = new Set();\nconst excerpts = [];\nfor (const item of $input.all()) {\n  const doc = item.json && item.json.document;\n  const text = doc && typeof doc.pageContent === 'string' ? doc.pageContent.trim() : '';\n  if (!text || seen.has(text)) continue;   // guard against duplicate chunks\n  seen.add(text);\n  excerpts.push(text);\n}\n\nconst policy = excerpts.length\n  ? excerpts.map((t, i) => `[Policy excerpt ${i + 1}]\\n${t}`).join('\\n\\n')\n  : '(No policy excerpts were retrieved for this request.)';\n\nconst email = ctx.chatInput || ctx.request_text || '';\n\n// llama3.2:3b drops the output format when the policy block pushes the\n// instructions far up the prompt - it starts emitting invented tool calls as\n// plain text. Small models weight the END of the prompt most, so the format is\n// restated last.\nconst task = [\n  '=== YOUR TASK ===',\n  'Look up the employee with the Employee Database tool, compare the request',\n  'against the policy excerpts above, then reply with EXACTLY these three lines',\n  'and nothing else:',\n  'Recommendation: Approve | Reject | Request Info',\n  'Confidence: <0-100>%',\n  'Reasoning: <short paragraph citing the policy rule and the employee data used>',\n  '',\n  'Do NOT output tool-call syntax, JSON, or any other text.',\n].join('\\n');\n\nconst out = {\n  json: {\n    ...ctx,\n    retrieved_policy: policy,\n    policy_excerpt_count: excerpts.length,\n    chatInput:\n      `${email}\\n\\n=== COMPANY POLICY (retrieved for this request) ===\\n${policy}\\n\\n${task}`,\n  },\n};\n\n// The agent's memory sub-node traces item lineage, so this collapsed item has to\n// declare which input it came from. Without pairedItem the agent fails with\n// \"Paired item data for item from node '...' is unavailable\".\nif ($input.all().length > 0) {\n  out.pairedItem = { item: 0 };\n}\n\nreturn [out];"
+      },
+      "id": "39a30945-e62d-4bfc-a066-bfe6b845b09b",
+      "name": "Build Flexwork Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        -16
+      ]
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Summarize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Email": {
+      "main": [
+        [
+          {
+            "node": "Supervisor Classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Email",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Supervisor Classify",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Classify": {
+      "main": [
+        [
+          {
+            "node": "Parse Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Supervisor Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor Router": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Leave Policy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retrieve Salary Policy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retrieve Flexwork Policy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not an HR request - Ignore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "leave request agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "salary request agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "flexible work agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store3",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Retrieve Flexwork Policy",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store3": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "EmployeeDatabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store4",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Retrieve Salary Policy",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store4": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file2": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "the company vacation leave policy",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Retrieve Leave Policy",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader2": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "query_employee_database": {
+      "ai_tool": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "the company vacation leave policy": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Parse Category": {
+      "main": [
+        [
+          {
+            "node": "request table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EmployeeDatabase2": {
+      "ai_tool": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "desicions table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "request table": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Leave Policy": {
+      "main": [
+        [
+          {
+            "node": "Build Leave Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Leave Prompt": {
+      "main": [
+        [
+          {
+            "node": "leave request agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Salary Policy": {
+      "main": [
+        [
+          {
+            "node": "Build Salary Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Salary Prompt": {
+      "main": [
+        [
+          {
+            "node": "salary request agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Flexwork Policy": {
+      "main": [
+        [
+          {
+            "node": "Build Flexwork Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Flexwork Prompt": {
+      "main": [
+        [
+          {
+            "node": "flexible work agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionCounter": 565,
+  "tags": []
+}
